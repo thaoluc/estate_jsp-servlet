@@ -1,5 +1,6 @@
 package com.laptrinhjavaweb.service.impl;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,20 +31,46 @@ public class BuildingService implements IBuildingService{
 	@Override
 	public List<BuildingDTO> findAll(BuildingSearchBuilder fieldSearch, Pageable pageable) {
 		
-		Map<String, Object> properties = new HashMap<>();
-		properties.put("name", fieldSearch.getName());
-		properties.put("district", fieldSearch.getDistrict());
-		if(StringUtils.isNotBlank(fieldSearch.getBuildingArea())) {
-			properties.put("buildingarea", Integer.parseInt(fieldSearch.getBuildingArea()));
-		}
-		if(StringUtils.isNotBlank(fieldSearch.getNumberOfBasement())) {
-			properties.put("numberofbasement", Integer.parseInt(fieldSearch.getNumberOfBasement()));
-		}
-	
-		//List<BuildingEntity> buildingEntities = buildingRepository.findAll(properties, pageable);
-		List<BuildingEntity> buildingEntities = buildingRepository.findAll(properties);
+		Map<String, Object> properties = convertToMapProperties(fieldSearch);
+		List<BuildingEntity> buildingEntities = buildingRepository.findAll(properties, pageable, fieldSearch);
+		//List<BuildingEntity> buildingEntities = buildingRepository.findAll(properties);
 		return buildingEntities.stream()
 				.map(item -> buildingConverter.convertToDTO(item)).collect(Collectors.toList());
+	}
+
+
+	private Map<String, Object> convertToMapProperties(BuildingSearchBuilder fieldSearch) {
+		
+		Map<String, Object> properties = new HashMap<>();
+		
+			try {
+				Field[] fields = BuildingSearchBuilder.class.getDeclaredFields();
+				for (Field field:fields) {
+					if(!field.getName().equals("buildingTypes") && !field.getName().startsWith("costRent")
+							&& !field.getName().startsWith("areaRent")) {
+						field.setAccessible(true);
+						if(field.get(fieldSearch) instanceof String) {
+							if(field.getName().equals("buildingArea") || field.getName().equals("numberOfBasement")) {
+								if(field.get(fieldSearch) != null && StringUtils.isNotEmpty((String) field.get(fieldSearch))) {
+									properties.put(field.getName().toLowerCase(), Integer.parseInt(fieldSearch.getBuildingArea()));
+								}
+							}
+							
+						}else {
+							properties.put(field.getName().toLowerCase(), field.get(fieldSearch));
+						}
+					}
+					
+				}	 
+			}catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	
+		return properties;
 	}
 
 }

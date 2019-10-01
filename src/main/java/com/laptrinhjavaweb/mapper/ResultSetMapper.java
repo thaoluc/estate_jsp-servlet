@@ -12,38 +12,35 @@ import org.apache.commons.beanutils.BeanUtils;
 import com.laptrinhjavaweb.annotation.Column;
 import com.laptrinhjavaweb.annotation.Entity;
 
-//làm việc vs ResultSet maching data dựa theo tên field
-//convert data từ ResultSet sang đối tượng
 public class ResultSetMapper<T> {
 	public List<T> mapRow(ResultSet rs, Class<T> zClass){
 		List<T> results = new ArrayList<>();
 		try {
 			if(zClass.isAnnotationPresent(Entity.class)) {
 				
-				ResultSetMetaData rsmd=rs.getMetaData(); //ResultSetMetaData: get name và value of từng field
-				Field[] allFields = zClass.getDeclaredFields(); //all fields of class of entity
+				ResultSetMetaData rsmd=rs.getMetaData(); 
+				Field[] allFields = zClass.getDeclaredFields(); 
 				
-				while(rs.next()) {	//đi từng row (trong resultset)
+				while(rs.next()) {	
 					T object = zClass.newInstance();
 					
-					for(int i=0; i<rsmd.getColumnCount(); i++) {	//đi từng column (trong resultset)
-						String columnName = rsmd.getColumnName(i+1);	//get name column trong resultset
-						//get value 
-						//dùng Object do có nhiều kdl khác nhau
+					for(int i=0; i<rsmd.getColumnCount(); i++) {	
+						String columnName = rsmd.getColumnName(i+1);	
+						
 						Object columnValue = rs.getObject(i+1);
 						
 						ColumnModel columnModel = new ColumnModel();
 						columnModel.setColumnName(columnName);
 						columnModel.setColumnValue(columnValue);
-						//loop field trong entity's class
+						
 						convertResultSetToEntity(allFields, columnModel, object);
 						
-						Class<?> parentClass = zClass.getSuperclass();	//get parent of zClass (neu co)
-						//ktra parentClass co con thua ke tu parent nao k
-						while (parentClass != null) {	//chay den khi parentClass k con parent
+						Class<?> parentClass = zClass.getSuperclass();	
+						
+						while (parentClass != null) {	
 							Field[] fieldParents = parentClass.getDeclaredFields();				
 							convertResultSetToEntity(fieldParents, columnModel, object);
-							parentClass = parentClass.getSuperclass();	//get parent of parentClass
+							parentClass = parentClass.getSuperclass();	
 						}
 					}
 					results.add(object);
@@ -60,12 +57,12 @@ public class ResultSetMapper<T> {
 		T object = (T) objects[0];
 		try {
 			for(Field field:fields) {
-				if(field.isAnnotationPresent(Column.class)) {	//field là column ??
-					//truy cập annotation Column
+				if(field.isAnnotationPresent(Column.class)) {	
+					
 					Column column = field.getAnnotation(Column.class);
-					//matching column entity vs resultset
+					
 					if(column.name().equals(columnModel.getColumnName()) && columnModel.getColumnValue() != null) {
-						//convert data
+						
 						BeanUtils.setProperty(object, field.getName(), columnModel.getColumnValue());
 						break;
 					}

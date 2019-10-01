@@ -3,8 +3,6 @@ package com.laptrinhjavaweb.dto;
 public class BuildingDTO extends AbstractDTO{
 	
 	private String name;
-//	private Integer numberOfBasement;
-//	private Integer buildingArea;
 	private String numberOfBasement;
 	private String buildingArea;
 	private String street;
@@ -24,27 +22,33 @@ public class BuildingDTO extends AbstractDTO{
 	private String timeDecorator;
 	private String managerName;
 	private String managerPhone;
-	private String type;
-
+	private String[] buildingTypes = new String[] {};
+	private String costRentFrom;
+	private String costRentTo;
+	private String areaRentFrom;
+	private String areaRentTo;
+	//private Long staffId;
 	
+	
+	public String getCostRentTo() {
+		return costRentTo;
+	}
+	public String getCostRentFrom() {
+		return costRentFrom;
+	}
+	public void setCostRentFrom(String costRentFrom) {
+		this.costRentFrom = costRentFrom;
+	}
+	public void setCostRentTo(String costRentTo) {
+		this.costRentTo = costRentTo;
+	}
 	public String getName() {
 		return name;
 	}
 	public void setName(String name) {
 		this.name = name;
 	}
-//	public Integer getNumberOfBasement() {
-//		return numberOfBasement;
-//	}
-//	public void setNumberOfBasement(Integer numberOfBasement) {
-//		this.numberOfBasement = numberOfBasement;
-//	}
-//	public Integer getBuildingArea() {
-//		return buildingArea;
-//	}
-//	public void setBuildingArea(Integer buildingArea) {
-//		this.buildingArea = buildingArea;
-//	}
+
 	public String getStreet() {
 		return street;
 	}
@@ -81,13 +85,13 @@ public class BuildingDTO extends AbstractDTO{
 	public void setManagerName(String managerName) {
 		this.managerName = managerName;
 	}
-	public String getType() {
-		return type;
-	}
-	public void setType(String type) {
-		this.type = type;
-	}
 	
+	public String[] getBuildingTypes() {
+		return buildingTypes;
+	}
+	public void setBuildingTypes(String[] buildingTypes) {
+		this.buildingTypes = buildingTypes;
+	}
 	public String getStructure() {
 		return structure;
 	}
@@ -165,6 +169,18 @@ public class BuildingDTO extends AbstractDTO{
 	}
 	public void setBuildingArea(String buildingArea) {
 		this.buildingArea = buildingArea;
+	}
+	public String getAreaRentFrom() {
+		return areaRentFrom;
+	}
+	public void setAreaRentFrom(String areaRentFrom) {
+		this.areaRentFrom = areaRentFrom;
+	}
+	public String getAreaRentTo() {
+		return areaRentTo;
+	}
+	public void setAreaRentTo(String areaRentTo) {
+		this.areaRentTo = areaRentTo;
 	}
 	
 	

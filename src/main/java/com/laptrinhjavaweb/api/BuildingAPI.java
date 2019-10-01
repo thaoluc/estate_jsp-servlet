@@ -43,6 +43,10 @@ public class BuildingAPI extends HttpServlet {
 		
 		BuildingSearchBuilder fieldSearch = new BuildingSearchBuilder.Builder().setName(building.getName()).setDistrict(building.getDistrict())
 																.setBuildingArea(building.getBuildingArea()).setNumberOfBasement(building.getNumberOfBasement())
+																.setStreet(building.getStreet()).setWard(building.getWard())
+																.setBuildingTypes(building.getBuildingTypes())
+																.setAreaRentFrom(building.getAreaRentFrom()).setAreaRentTo(building.getAreaRentTo())
+																.setCostRentFrom(building.getCostRentFrom()).setCostRentTo(building.getCostRentTo())
 																.build();
 		Pageable pageable = new PageRequest(building.getPage(),building.getLimit());
 		List<BuildingDTO> buildings = buildingService.findAll(fieldSearch, pageable);

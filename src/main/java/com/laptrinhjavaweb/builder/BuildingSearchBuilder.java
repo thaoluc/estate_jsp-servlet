@@ -5,10 +5,15 @@ public class BuildingSearchBuilder {
 	
 		private String name;
 		private String district;
-//		private Integer buildingArea;
-//		private Integer numberOfBasement;
 		private String buildingArea;
 		private String numberOfBasement;
+		private String street;
+		private String ward;	
+		private String[] buildingTypes = new String[] {};
+		private String costRentFrom;
+		private String costRentTo;
+		private String areaRentFrom;
+		private String areaRentTo;
 		
 		public String getName() {
 			return name;
@@ -26,19 +31,47 @@ public class BuildingSearchBuilder {
 			return numberOfBasement;
 		}
 		
-//		public Integer getBuildingArea() {
-//			return buildingArea;
-//		}
-//
-//		public Integer getNumberOfBasement() {
-//			return numberOfBasement;
-//		}
+		public String getStreet() {
+			return street;
+		}
+
+		public String getWard() {
+			return ward;
+		}
+		
+
+		public String[] getBuildingTypes() {
+			return buildingTypes;
+		}
+
+		public String getCostRentFrom() {
+			return costRentFrom;
+		}
+
+		public String getAreaRentFrom() {
+			return areaRentFrom;
+		}
+
+		public String getCostRentTo() {
+			return costRentTo;
+		}
+
+		public String getAreaRentTo() {
+			return areaRentTo;
+		}
 
 		private BuildingSearchBuilder(Builder builder) {
 			this.name = builder.name;
 			this.district = builder.district;
 			this.buildingArea = builder.buildingArea;
 			this.numberOfBasement = builder.numberOfBasement;
+			this.street = builder.street;
+			this.ward = builder.ward;
+			this.buildingTypes = builder.buildingTypes;
+			this.areaRentFrom=builder.areaRentFrom;
+			this.areaRentTo = builder.areaRentTo;
+			this.costRentFrom = builder.costRentFrom;
+			this.costRentTo = builder.costRentTo;
 		}
 		
 		//Builder Class
@@ -48,6 +81,13 @@ public class BuildingSearchBuilder {
 			private String district;
 			private String buildingArea;
 			private String numberOfBasement;
+			private String street;
+			private String ward;
+			private String[] buildingTypes = new String[] {};
+			private String costRentFrom;
+			private String costRentTo;
+			private String areaRentFrom;
+			private String areaRentTo;
 
 			public Builder setName(String name) {
 				this.name = name;
@@ -68,10 +108,45 @@ public class BuildingSearchBuilder {
 				this.numberOfBasement = numberOfBasement;
 				return this;
 			}
+			
+			public Builder setStreet(String street) {
+				this.street = street;
+				return this;
+			}
+
+			public Builder setWard(String ward) {
+				this.ward = ward;
+				return this;
+			}
+
+			public Builder setBuildingTypes(String[] buildingTypes) {
+				this.buildingTypes = buildingTypes;
+				return this;
+			}
+
+			public Builder setCostRentFrom(String costRentFrom) {
+				this.costRentFrom = costRentFrom;
+				return this;
+			}
+
+			public Builder setAreaRentFrom(String areaRentFrom) {
+				this.areaRentFrom = areaRentFrom;
+				return this;
+			}
+
+			public Builder setCostRentTo(String costRentTo) {
+				this.costRentTo = costRentTo;
+				return this;
+			}
+
+			public Builder setAreaRentTo(String areaRentTo) {
+				this.areaRentTo = areaRentTo;
+				return this;
+			}
 
 			public BuildingSearchBuilder build(){
 				return new BuildingSearchBuilder(this);
 			}
-
+			
 		}
 }
