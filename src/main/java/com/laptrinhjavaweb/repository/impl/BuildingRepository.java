@@ -16,8 +16,16 @@ public class BuildingRepository extends SimpleJpaRepository<BuildingEntity> impl
 
 	@Override
 	public List<BuildingEntity> findAll(Map<String, Object> params,Pageable pageable, BuildingSearchBuilder fieldSearch) {
+		StringBuilder sqlSearch = new StringBuilder("Select A.* from building A");
+		if(StringUtils.isNotBlank(fieldSearch.getStaffId())) {
+			sqlSearch.append(" INNER JOIN  assignmentstaff assignmentstaff ON  assignmentstaff.buildingid = A.id");
+		}
+		sqlSearch.append(" WHERE 1=1");
+		sqlSearch=this.createSQLfindAll(sqlSearch, params);
 		String sqlSpecial = buildSqlSpecial(fieldSearch);
-		return this.findAll(params, pageable, sqlSpecial);
+		sqlSearch.append(sqlSpecial);
+
+		return this.findAll(sqlSearch.toString(), pageable);
 	}
 	
 	private String buildSqlSpecial(BuildingSearchBuilder fieldSearch) {
@@ -57,7 +65,9 @@ public class BuildingRepository extends SimpleJpaRepository<BuildingEntity> impl
 			}
 			result.append("))");
 		}
-		
+		if(StringUtils.isNotBlank(fieldSearch.getStaffId())) {
+			result.append(" AND assignmentstaff.staffid= "+fieldSearch.getStaffId()+"");
+		}
 		return result.toString();
 	}
 }

@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +38,8 @@ public class SimpleJpaRepository<T> implements JpaRepository<T> {
 			tableName = table.name();	
 		}
 		
-		StringBuilder sql = new StringBuilder( "Select * from "+tableName+" A where 1=1 "); 	
+		StringBuilder sql = new StringBuilder( "Select * from "+tableName+" A"); 
+		sql.append(" WHERE 1=1" );
 		sql = createSQLfindAll(sql, properties);
 		if(where != null && where.length > 0) {
 			sql.append(where[0]);
@@ -56,7 +58,7 @@ public class SimpleJpaRepository<T> implements JpaRepository<T> {
 			
 			return resultSetMapper.mapRow(resultSet, this.zClass); 
 		} catch (SQLException e) {
-			return null;
+			return new ArrayList<>();
 		} finally {
 			try {
 				if (connection != null) {
@@ -69,12 +71,12 @@ public class SimpleJpaRepository<T> implements JpaRepository<T> {
 					resultSet.close();
 				}
 			} catch (SQLException e) {
-				return null;
+				return new ArrayList<>();
 			}
 		}
 		
 	}
-	private StringBuilder createSQLfindAll(StringBuilder where, Map<String, Object> params) {
+	protected StringBuilder createSQLfindAll(StringBuilder where, Map<String, Object> params) {
 		
 		if(params != null && params.size() > 0) {
 			String [] keys = new String [params.size()];
@@ -88,11 +90,11 @@ public class SimpleJpaRepository<T> implements JpaRepository<T> {
 			
 			for(int i1 = 0; i1<keys.length; i1++) {
 				if((values[i1] instanceof String) && (StringUtils.isNotBlank(values[i1].toString()))) {
-					where.append("AND LOWER (A."+ keys[i1]+") LIKE '%"+values[i1].toString()+"%' ");
+					where.append(" AND LOWER (A."+ keys[i1]+") LIKE '%"+values[i1].toString()+"%' ");
 				}else if ((values[i1] instanceof Integer) && (values[i1]!=null)) {
-					where.append("AND LOWER (A."+ keys[i1]+") = "+values[i1]+" "); 
+					where.append(" AND LOWER (A."+ keys[i1]+") = "+values[i1]+" "); 
 				}else if ((values[i1] instanceof Long)&& (values[i1]!=null)) {
-					where.append("AND LOWER (A."+ keys[i1]+") = "+values[i1]+" "); 
+					where.append(" AND LOWER (A."+ keys[i1]+") = "+values[i1]+" "); 
 				}
 			}
 		}
@@ -129,7 +131,7 @@ public class SimpleJpaRepository<T> implements JpaRepository<T> {
 			
 			return resultSetMapper.mapRow(resultSet, this.zClass); 
 		} catch (SQLException e) {
-			return null;
+			return new ArrayList<>();
 		} finally {
 			try {
 				if (connection != null) {
@@ -142,10 +144,48 @@ public class SimpleJpaRepository<T> implements JpaRepository<T> {
 					resultSet.close();
 				}
 			} catch (SQLException e) {
-				return null;
+				return new ArrayList<>();
 			}
 		}
 		
+	}
+	
+	@Override
+	public List<T> findAll(String sqlSearch, Pageable pageable, Object... objects) {
+		
+		StringBuilder sql = new StringBuilder(sqlSearch); 
+		
+		sql.append(" limit "+pageable.getOffset()+", "+pageable.getLimit()+"");
+		
+		ResultSetMapper<T> resultSetMapper = new ResultSetMapper<>();
+		Connection connection = null;	
+		Statement statement = null;
+		ResultSet resultSet = null;
+		
+		try {
+			connection = EntityManagerFactory.getConnection();
+			statement = connection.createStatement();
+			resultSet = statement.executeQuery(sql.toString());
+			
+			return resultSetMapper.mapRow(resultSet, this.zClass); 
+		} catch (SQLException e) {
+			return new ArrayList<>();
+		} finally {
+			try {
+				if (connection != null) {
+					connection.close();
+				}
+				if (statement != null) {
+					statement.close();
+				}
+				if (resultSet != null) {
+					resultSet.close();
+				}
+			} catch (SQLException e) {
+				return new ArrayList<>();
+			}
+		}
+
 	}
 	
 }

@@ -47,6 +47,7 @@ public class BuildingAPI extends HttpServlet {
 																.setBuildingTypes(building.getBuildingTypes())
 																.setAreaRentFrom(building.getAreaRentFrom()).setAreaRentTo(building.getAreaRentTo())
 																.setCostRentFrom(building.getCostRentFrom()).setCostRentTo(building.getCostRentTo())
+																.setStaffId(building.getStaffId())
 																.build();
 		Pageable pageable = new PageRequest(building.getPage(),building.getLimit());
 		List<BuildingDTO> buildings = buildingService.findAll(fieldSearch, pageable);

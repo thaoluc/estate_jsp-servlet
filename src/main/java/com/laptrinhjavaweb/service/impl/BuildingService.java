@@ -47,7 +47,7 @@ public class BuildingService implements IBuildingService{
 				Field[] fields = BuildingSearchBuilder.class.getDeclaredFields();
 				for (Field field:fields) {
 					if(!field.getName().equals("buildingTypes") && !field.getName().startsWith("costRent")
-							&& !field.getName().startsWith("areaRent")) {
+							&& !field.getName().startsWith("areaRent") && !field.getName().equals("staffId")) {
 						field.setAccessible(true);
 						if(field.get(fieldSearch) instanceof String) {
 							if(field.getName().equals("buildingArea") || field.getName().equals("numberOfBasement")) {

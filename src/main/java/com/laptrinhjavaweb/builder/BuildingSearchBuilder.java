@@ -14,6 +14,7 @@ public class BuildingSearchBuilder {
 		private String costRentTo;
 		private String areaRentFrom;
 		private String areaRentTo;
+		private String staffId;
 		
 		public String getName() {
 			return name;
@@ -60,6 +61,10 @@ public class BuildingSearchBuilder {
 			return areaRentTo;
 		}
 
+		public String getStaffId() {
+			return staffId;
+		}
+
 		private BuildingSearchBuilder(Builder builder) {
 			this.name = builder.name;
 			this.district = builder.district;
@@ -72,6 +77,7 @@ public class BuildingSearchBuilder {
 			this.areaRentTo = builder.areaRentTo;
 			this.costRentFrom = builder.costRentFrom;
 			this.costRentTo = builder.costRentTo;
+			this.staffId = builder.staffId;
 		}
 		
 		//Builder Class
@@ -88,6 +94,7 @@ public class BuildingSearchBuilder {
 			private String costRentTo;
 			private String areaRentFrom;
 			private String areaRentTo;
+			private String staffId;
 
 			public Builder setName(String name) {
 				this.name = name;
@@ -141,6 +148,11 @@ public class BuildingSearchBuilder {
 
 			public Builder setAreaRentTo(String areaRentTo) {
 				this.areaRentTo = areaRentTo;
+				return this;
+			}
+
+			public Builder setStaffId(String staffId) {
+				this.staffId = staffId;
 				return this;
 			}
 
