@@ -16,10 +16,10 @@ public class BaseEntity {
 	private Date modifiedDate;
 	
 	@Column (name = "createdby")
-	private Date createdBy;
+	private String createdBy;
 	
 	@Column (name = "modifiedby")
-	private Date modifiedBy;
+	private String modifiedBy;
 
 	public Long getId() {
 		return id;
@@ -45,19 +45,19 @@ public class BaseEntity {
 		this.modifiedDate = modifiedDate;
 	}
 
-	public Date getCreatedBy() {
+	public String getCreatedBy() {
 		return createdBy;
 	}
 
-	public void setCreatedBy(Date createdBy) {
+	public void setCreatedBy(String createdBy) {
 		this.createdBy = createdBy;
 	}
 
-	public Date getModifiedBy() {
+	public String getModifiedBy() {
 		return modifiedBy;
 	}
 
-	public void setModifiedBy(Date modifiedBy) {
+	public void setModifiedBy(String modifiedBy) {
 		this.modifiedBy = modifiedBy;
 	}
 	

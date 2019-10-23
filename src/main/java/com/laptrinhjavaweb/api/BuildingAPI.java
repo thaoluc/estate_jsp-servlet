@@ -17,6 +17,7 @@ import com.laptrinhjavaweb.paging.Pageable;
 import com.laptrinhjavaweb.service.IBuildingService;
 import com.laptrinhjavaweb.service.impl.BuildingService;
 import com.laptrinhjavaweb.utils.FormUtil;
+import com.laptrinhjavaweb.utils.HttpUtil;
 
 @WebServlet(urlPatterns = {"/api-building"})
 public class BuildingAPI extends HttpServlet {
@@ -28,7 +29,12 @@ public class BuildingAPI extends HttpServlet {
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException{
-		
+		ObjectMapper mapper = new ObjectMapper();
+		request.setCharacterEncoding("UTF-8");
+		response.setContentType("application/json");
+		BuildingDTO buildingDTO =  HttpUtil.of(request.getReader()).toModel(BuildingDTO.class);	//parse dl tu json sang dto
+		buildingDTO = buildingService.save(buildingDTO);
+		mapper.writeValue(response.getOutputStream(), buildingDTO);
 		
 	}
 	

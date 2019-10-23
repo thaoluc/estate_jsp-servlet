@@ -1,8 +1,10 @@
 package com.laptrinhjavaweb.repository.impl;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -12,6 +14,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.laptrinhjavaweb.annotation.Column;
 import com.laptrinhjavaweb.annotation.Entity;
 import com.laptrinhjavaweb.annotation.Table;
 import com.laptrinhjavaweb.mapper.ResultSetMapper;
@@ -186,6 +189,121 @@ public class SimpleJpaRepository<T> implements JpaRepository<T> {
 			}
 		}
 
+	}
+	@Override
+	public Long Insert(Object object) {
+		
+		//String sql="insert into building(name,district, ward, street) values (?,?,?,?)";
+		String sql = createSQLInsert();
+		
+		Connection connection = null;
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
+		
+		try {
+			Long id = null;
+			connection = EntityManagerFactory.getConnection();
+			connection.setAutoCommit(false);
+			statement = connection.prepareStatement(sql.toString(), Statement.RETURN_GENERATED_KEYS);
+			
+			Class<?> aClass = object.getClass();
+			Field[] fields = aClass.getDeclaredFields();
+			for(int i =0; i<fields.length; i++)
+			{
+				int index= i+1;
+				Field field=fields[i];
+				field.setAccessible(true);
+				statement.setObject(index, field.get(object));
+				
+			}
+			
+			Class<?> parentClass = zClass.getSuperclass();	
+			int indexParent = fields.length+1;
+			while (parentClass != null) {	
+				for(int i =0; i<parentClass.getDeclaredFields().length; i++)
+				{
+					Field field=parentClass.getDeclaredFields()[i];
+					field.setAccessible(true);
+					statement.setObject(indexParent, field.get(object));
+					indexParent++;
+				}
+				parentClass=parentClass.getSuperclass();
+			}
+			
+			statement.executeUpdate();
+			
+			resultSet = statement.getGeneratedKeys();
+			if (resultSet.next()) {
+				id = resultSet.getLong(1);
+			}
+			connection.commit();
+			return 	id;
+
+		} catch (SQLException | IllegalAccessException e) {
+			if (connection != null) {
+				try {
+					connection.rollback();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+			}
+		} finally {
+			try {
+				if (connection != null) {
+					connection.close();
+				}
+				if (statement != null) {
+					statement.close();
+				}
+				if (resultSet != null) {
+					resultSet.close();
+				}
+			} catch (SQLException e2) {
+				e2.printStackTrace();
+			}
+		}
+		return null;
+	}
+	private String createSQLInsert() {
+		String tableName = "";
+		
+		if(zClass.isAnnotationPresent(Entity.class) && zClass.isAnnotationPresent(Table.class)) {
+			Table table = zClass.getAnnotation(Table.class); 
+			tableName = table.name();	
+		}
+		
+		StringBuilder fields = new StringBuilder("");
+		StringBuilder params = new StringBuilder("");
+		for(Field field:zClass.getDeclaredFields()) {
+			if(fields.length()>1) {
+				fields.append(",");
+				params.append(",");
+			}
+			if(field.isAnnotationPresent(Column.class)) {
+				Column column = field.getAnnotation(Column.class);
+				fields.append(column.name());
+				params.append("?");
+			}
+		}
+		
+		Class<?> parentClass = zClass.getSuperclass();	
+		while(parentClass!=null) {
+			for(Field fieldParent:parentClass.getDeclaredFields()) {	
+				if(fields.length()>1) {
+					fields.append(",");
+					params.append(",");
+				}
+				if(fieldParent.isAnnotationPresent(Column.class)) {
+					Column column = fieldParent.getAnnotation(Column.class);
+					fields.append(column.name());
+					params.append("?");
+				}		
+			}
+			parentClass=parentClass.getSuperclass();
+		}
+		
+		String sql="INSERT INTO "+tableName+"("+fields.toString()+") VALUES ("+params.toString()+")";
+		return sql;
 	}
 	
 }

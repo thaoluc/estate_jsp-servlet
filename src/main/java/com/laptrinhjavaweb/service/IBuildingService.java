@@ -8,4 +8,5 @@ import com.laptrinhjavaweb.paging.Pageable;
 
 public interface IBuildingService {
 	List<BuildingDTO> findAll(BuildingSearchBuilder fielSearch, Pageable pageable);
+	BuildingDTO save(BuildingDTO buildingDTO);
 }

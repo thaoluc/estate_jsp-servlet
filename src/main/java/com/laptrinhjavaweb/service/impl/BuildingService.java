@@ -1,6 +1,7 @@
 package com.laptrinhjavaweb.service.impl;
 
 import java.lang.reflect.Field;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,8 +38,7 @@ public class BuildingService implements IBuildingService{
 		return buildingEntities.stream()
 				.map(item -> buildingConverter.convertToDTO(item)).collect(Collectors.toList());
 	}
-
-
+	
 	private Map<String, Object> convertToMapProperties(BuildingSearchBuilder fieldSearch) {
 		
 		Map<String, Object> properties = new HashMap<>();
@@ -71,6 +71,15 @@ public class BuildingService implements IBuildingService{
 			}
 	
 		return properties;
+	}
+
+	@Override
+	public BuildingDTO save(BuildingDTO buildingDTO) {
+		BuildingEntity buildingEntity = buildingConverter.convertToEntity(buildingDTO);
+		buildingEntity.setCreatedDate(new Date());
+		buildingEntity.setCreatedBy("thaoluc");
+		Long id = buildingRepository.Insert(buildingEntity);
+		return null;
 	}
 
 }

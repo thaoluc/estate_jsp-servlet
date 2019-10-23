@@ -10,15 +10,13 @@ public class BuildingConverter {
 	public BuildingDTO convertToDTO (BuildingEntity buildingEntity) {
 		ModelMapper modelMapper = new ModelMapper();
 		BuildingDTO buildingDTO = modelMapper.map(buildingEntity, BuildingDTO.class);
-		/*
-		if(buildingEntity.getBuildingArea() != null) {
-			buildingDTO.setBuildingArea(String.valueOf(buildingEntity.getBuildingArea()));
-		}
-		if(buildingEntity.getNumberOfBasement() != null) {
-			buildingDTO.setBuildingArea(String.valueOf(buildingEntity.getNumberOfBasement()));
-		}
-		*/
 		return buildingDTO;
+	}
+	
+	public BuildingEntity convertToEntity (BuildingDTO buildingDTO) {
+		ModelMapper modelMapper = new ModelMapper();
+		BuildingEntity buildingEntity = modelMapper.map(buildingDTO, BuildingEntity.class);
+		return buildingEntity;
 	}
 	
 }
