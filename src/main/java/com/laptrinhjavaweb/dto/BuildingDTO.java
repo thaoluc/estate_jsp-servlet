@@ -22,13 +22,20 @@ public class BuildingDTO extends AbstractDTO{
 	private String timeDecorator;
 	private String managerName;
 	private String managerPhone;
-	private String[] buildingTypes = new String[] {};
+	private String[] type = new String[] {};
 	private String costRentFrom;
 	private String costRentTo;
 	private String areaRentFrom;
 	private String areaRentTo;
 	private String staffId;
+	private String rentArea;
 	
+	public String getRentArea() {
+		return rentArea;
+	}
+	public void setRentArea(String rentArea) {
+		this.rentArea = rentArea;
+	}
 	public String getCostRentTo() {
 		return costRentTo;
 	}
@@ -84,12 +91,11 @@ public class BuildingDTO extends AbstractDTO{
 	public void setManagerName(String managerName) {
 		this.managerName = managerName;
 	}
-	
-	public String[] getBuildingTypes() {
-		return buildingTypes;
+	public String[] getType() {
+		return type;
 	}
-	public void setBuildingTypes(String[] buildingTypes) {
-		this.buildingTypes = buildingTypes;
+	public void setType(String[] type) {
+		this.type = type;
 	}
 	public String getStructure() {
 		return structure;

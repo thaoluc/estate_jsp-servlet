@@ -3,6 +3,7 @@ package com.laptrinhjavaweb.builder;
 
 public class BuildingSearchBuilder {
 	
+		private Long id;
 		private String name;
 		private String district;
 		private String buildingArea;
@@ -16,6 +17,10 @@ public class BuildingSearchBuilder {
 		private String areaRentTo;
 		private String staffId;
 		
+		public Long getId() {
+			return id;
+		}
+
 		public String getName() {
 			return name;
 		}
@@ -66,6 +71,7 @@ public class BuildingSearchBuilder {
 		}
 
 		private BuildingSearchBuilder(Builder builder) {
+			
 			this.name = builder.name;
 			this.district = builder.district;
 			this.buildingArea = builder.buildingArea;
@@ -78,11 +84,13 @@ public class BuildingSearchBuilder {
 			this.costRentFrom = builder.costRentFrom;
 			this.costRentTo = builder.costRentTo;
 			this.staffId = builder.staffId;
+			this.id = builder.id;
 		}
 		
 		//Builder Class
 		public static class Builder{
 
+			private Long id;
 			private String name;
 			private String district;
 			private String buildingArea;
@@ -95,6 +103,11 @@ public class BuildingSearchBuilder {
 			private String areaRentFrom;
 			private String areaRentTo;
 			private String staffId;
+			
+			public Builder setId(Long id) {
+				this.id = id;
+				return this;
+			}
 
 			public Builder setName(String name) {
 				this.name = name;

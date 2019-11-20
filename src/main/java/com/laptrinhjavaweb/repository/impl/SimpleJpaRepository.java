@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -191,6 +192,41 @@ public class SimpleJpaRepository<T> implements JpaRepository<T> {
 
 	}
 	@Override
+	public List<T> findAll(String sqlSearch, Object... objects) {
+		
+		StringBuilder sql = new StringBuilder(sqlSearch); 
+
+		ResultSetMapper<T> resultSetMapper = new ResultSetMapper<>();
+		Connection connection = null;	
+		Statement statement = null;
+		ResultSet resultSet = null;
+		
+		try {
+			connection = EntityManagerFactory.getConnection();
+			statement = connection.createStatement();
+			resultSet = statement.executeQuery(sql.toString());
+			
+			return resultSetMapper.mapRow(resultSet, this.zClass); 
+		} catch (SQLException e) {
+			return new ArrayList<>();
+		} finally {
+			try {
+				if (connection != null) {
+					connection.close();
+				}
+				if (statement != null) {
+					statement.close();
+				}
+				if (resultSet != null) {
+					resultSet.close();
+				}
+			} catch (SQLException e) {
+				return new ArrayList<>();
+			}
+		}
+
+	}
+	@Override
 	public Long Insert(Object object) {
 		
 		//String sql="insert into building(name,district, ward, street) values (?,?,?,?)";
@@ -304,6 +340,264 @@ public class SimpleJpaRepository<T> implements JpaRepository<T> {
 		
 		String sql="INSERT INTO "+tableName+"("+fields.toString()+") VALUES ("+params.toString()+")";
 		return sql;
+	}
+	
+	@Override
+	public void delete(Long id) {
+		String sql = createSQLDelete();
+		
+		Connection connection = null;
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
+		
+		try {
+			
+			connection = EntityManagerFactory.getConnection();
+			connection.setAutoCommit(false);
+			statement = connection.prepareStatement(sql.toString());
+		
+			
+			Class<?> parentClass = zClass.getSuperclass();	
+			while (parentClass != null) {	
+				for(Field field:parentClass.getDeclaredFields())
+				{	
+					if(field.isAnnotationPresent(Column.class)) {
+						Column column = field.getAnnotation(Column.class);
+						if (column.name().equals("id")) {
+							field.setAccessible(true);
+							statement.setLong(1, id);
+						}
+					}
+				}
+				parentClass=parentClass.getSuperclass();
+			}
+			
+			statement.executeUpdate();
+			
+			connection.commit();
+
+		} catch (SQLException e) {
+			if (connection != null) {
+				try {
+					connection.rollback();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+			}
+		} finally {
+			try {
+				if (connection != null) {
+					connection.close();
+				}
+				if (statement != null) {
+					statement.close();
+				}
+				if (resultSet != null) {
+					resultSet.close();
+				}
+			} catch (SQLException e2) {
+				e2.printStackTrace();
+			}
+		}
+		
+	}
+	private String createSQLDelete() {
+		String tableName = "";
+		String columnName = "";
+
+		if (zClass.isAnnotationPresent(Entity.class) && zClass.isAnnotationPresent(Table.class)) {
+			Table table = zClass.getAnnotation(Table.class);
+			tableName = table.name();
+		}
+
+		StringBuilder param = new StringBuilder("");
+		Class<?> parentClass = zClass.getSuperclass();
+
+		while (parentClass != null) {
+			Field[] fieldParents = parentClass.getDeclaredFields();
+			for (Field field : fieldParents) {
+				if (field.isAnnotationPresent(Column.class)) {
+					Column column = field.getAnnotation(Column.class);
+					columnName = column.name();
+					if (columnName.equals("id")) {
+						param.append("?");
+					}
+
+				}
+			}
+			parentClass = parentClass.getSuperclass();
+		}
+
+		String sql = "DELETE FROM " + tableName + " WHERE id = " + param.toString();
+		return sql;
+	}
+	
+	@Override
+	public List<T> findById(Long id) {
+		
+		String tableName = "";
+
+		if (zClass.isAnnotationPresent(Entity.class) && zClass.isAnnotationPresent(Table.class)) {
+			Table table = zClass.getAnnotation(Table.class);
+			tableName = table.name();
+		}
+		String sql = "SELECT * FROM "+tableName+" WHERE id = ?";
+		
+		ResultSetMapper<T> resultSetMapper = new ResultSetMapper<>();
+		Connection connection = null;	
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
+		
+		try {
+			connection = EntityManagerFactory.getConnection();
+			statement = connection.prepareStatement(sql);
+			statement.setLong(1, id);
+			resultSet = statement.executeQuery();
+			
+			return resultSetMapper.mapRow(resultSet, this.zClass); 
+		} catch (SQLException e) {
+			return new ArrayList<>();
+		} finally {
+			try {
+				if (connection != null) {
+					connection.close();
+				}
+				if (statement != null) {
+					statement.close();
+				}
+				if (resultSet != null) {
+					resultSet.close();
+				}
+			} catch (SQLException e) {
+				return new ArrayList<>();
+			}
+		}
+	}
+	
+	@Override
+	public void update(Object object, Long id) {
+		String sql = creatSQLUpdate();
+		
+		Map<String, Object> propertiesObject  = new HashMap<>();
+		Map<String, Object> properties  = new HashMap<>();
+		Connection connection = null;
+		PreparedStatement statement = null;
+	
+		try {
+			connection = EntityManagerFactory.getConnection();
+			connection.setAutoCommit(false);
+			statement = connection.prepareStatement(sql.toString());
+
+			Class<?> tClass = object.getClass();
+			Field[] fields = tClass.getDeclaredFields();
+			int index = 1;
+			for(Field field : fields) {
+				field.setAccessible(true);
+				String name = field.getName();
+				Object value = field.get(object);
+				
+				//cần map những data k truyền vào (mang giá trị null) từ db qua object
+				//1. duyệt all field của object truyền vào (check property == null ?)
+				//2. dùng findById get các thuộc tính tu db gán giá trị qua 
+				if(field.get(object) == null) {
+					Object objectEntity = findById(id).get(0);
+					properties = mapProperties(objectEntity);
+					propertiesObject=mapProperties(object);
+					
+					for(Map.Entry<String, Object> entryProperties : properties.entrySet()){
+						for(Map.Entry<String, Object> entryPropertiesObject : propertiesObject.entrySet()) {
+							if(entryProperties.getKey()==entryPropertiesObject.getKey()) {
+								if(entryPropertiesObject.getValue()==null) {
+									entryPropertiesObject.setValue(entryProperties.getValue());
+								}
+							}
+						}
+					}
+					
+					for(Map.Entry<String, Object> entryPropertiesObject : propertiesObject.entrySet()) {
+		            	if(name==entryPropertiesObject.getKey()) {
+		            		value = entryPropertiesObject.getValue();
+		            	}
+		            }
+				}
+				
+				statement.setObject(index, value);
+				index++;
+			}
+			statement.setLong(fields.length+1, id);
+
+			statement.executeUpdate();
+			connection.commit();
+		} catch (SQLException | IllegalAccessException e) {
+			if (connection != null) {
+				try {
+					connection.rollback();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+			}
+		} finally {
+			try {
+				if (connection != null) {
+					connection.close();
+				}
+				if (statement != null) {
+					statement.close();
+				}
+			} catch (SQLException e2) {
+				e2.printStackTrace();
+			}
+		}
+	}
+
+
+	private String creatSQLUpdate() {
+	
+		String tableName = "";	
+		if(zClass.isAnnotationPresent(Entity.class) && zClass.isAnnotationPresent(Table.class)) {
+			Table table = zClass.getAnnotation(Table.class);
+			tableName = table.name();
+		}
+		
+		StringBuilder fields = new StringBuilder("");
+
+		for(Field field:zClass.getDeclaredFields()) {
+			
+			if(fields.length() > 1) {
+				fields.append(",");
+				
+			}
+			
+			if(field.isAnnotationPresent(Column.class)) {
+				Column column = field.getAnnotation(Column.class);
+				String columnName = column.name();
+				fields.append(columnName+"=?");	
+			}
+		}
+			
+		String sql = ("UPDATE "+tableName+" SET "+fields.toString()+" WHERE id = ?");
+		return sql;
+	
+	}
+	
+	private Map<String, Object> mapProperties(Object object) {
+		Map<String, Object> properties = new HashMap<>();
+		
+		try {
+			Field[] fields = object.getClass().getDeclaredFields();
+	        for (Field field:fields) {
+	        	field.setAccessible(true);
+	        	String propertyName = field.getName();
+	        	Object propertyValue = field.get(object);
+	        	properties.put(propertyName,propertyValue);
+				
+	        }
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+		}
+		
+	return properties;
 	}
 	
 }

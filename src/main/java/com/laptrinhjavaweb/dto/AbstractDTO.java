@@ -11,7 +11,14 @@ public class AbstractDTO {
 	private String modifiedBy;
 	private Integer page;
 	private Integer limit;
+	private Long [] ids;
 	
+	public Long[] getIds() {
+		return ids;
+	}
+	public void setIds(Long[] ids) {
+		this.ids = ids;
+	}
 	public Long getId() {
 		return id;
 	}

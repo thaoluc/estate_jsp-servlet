@@ -11,8 +11,8 @@ import javax.servlet.http.HttpServletResponse;
 
 @WebServlet(urlPatterns = {"/home-page"})
 public class HomeController extends HttpServlet {
-
-	private static final long serialVersionUID = 7791882872114240785L;
+	
+	private static final long serialVersionUID = -2591694005133548592L;
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException{

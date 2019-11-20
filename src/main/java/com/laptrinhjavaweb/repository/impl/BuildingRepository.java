@@ -70,58 +70,6 @@ public class BuildingRepository extends SimpleJpaRepository<BuildingEntity> impl
 		return result.toString();
 	}
 
-//	
-//	@Override
-//	public BuildingEntity save(BuildingEntity buildingEntity) {
-//		String sql="insert into building(name,district, ward, street) values (?,?,?,?)";
-//		Connection connection = null;
-//		PreparedStatement statement = null;
-//		//ResultSet resultSet = null;
-//		try {
-//			//Long id = null;
-//			connection = EntityManagerFactory.getConnection();
-//			connection.setAutoCommit(false);
-//		//	statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-//		//	setParameter(statement, parameters);
-//			statement = connection.prepareStatement(sql);
-//			statement.setString(1, buildingEntity.getName());
-//			statement.setString(2, buildingEntity.getDistrict());
-//			statement.setString(3, buildingEntity.getWard());
-//			statement.setString(4, buildingEntity.getStreet());
-//			statement.executeUpdate();
-//			
-//			/*resultSet = statement.getGeneratedKeys();
-//			if (resultSet.next()) {
-//				id = resultSet.getLong(1);
-//			}*/
-//			connection.commit();
-//			return 	buildingEntity;
-//
-//		} catch (SQLException e) {
-//			if (connection != null) {
-//				try {
-//					connection.rollback();
-//				} catch (SQLException e1) {
-//					e1.printStackTrace();
-//				}
-//			}
-//		} finally {
-//			try {
-//				if (connection != null) {
-//					connection.close();
-//				}
-//				if (statement != null) {
-//					statement.close();
-//				}
-//				/*if (resultSet != null) {
-//					resultSet.close();
-//				}*/
-//			} catch (SQLException e2) {
-//				e2.printStackTrace();
-//			}
-//		}
-//		return new BuildingEntity();
-//	}
-//	
+
 	
 }
