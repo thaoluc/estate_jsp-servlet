@@ -1,6 +1,7 @@
 package com.laptrinhjavaweb.service.impl;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -11,6 +12,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 
 import com.laptrinhjavaweb.builder.BuildingSearchBuilder;
+import com.laptrinhjavaweb.builder.RentAreaSearchBuilder;
 import com.laptrinhjavaweb.converter.BuildingConverter;
 import com.laptrinhjavaweb.dto.BuildingDTO;
 import com.laptrinhjavaweb.dto.RentAreaDTO;
@@ -132,7 +134,7 @@ public class BuildingService implements IBuildingService{
 				for (String rentArea : listRentArea) {
 					int k = Integer.parseInt(rentArea);
 					rentareaDTO.setValue(k);
-					rentareaDTO.setBuildingid(id);
+					rentareaDTO.setBuildingId(id);
 					rentAreaService.save(rentareaDTO);
 				}
 			}
@@ -206,43 +208,109 @@ public class BuildingService implements IBuildingService{
 		//end xử lí update type
 		buildingRepository.update(buildingEntity,id);
 		
-		/*
+		
 		//xử lí update rentarea
+		//delete --> save ms
 		RentAreaDTO rentAreaDTO = new RentAreaDTO();
 		if (buildingDTO.getRentArea() != null) {
-			List<RentAreaEntity> rentAreaEntities = rentAreaRepository.findById(id);
-			RentAreaEntity rentAreaEntity = rentAreaEntities.get(0);
-			if(rentAreaEntity.getBuildingId() == id) {
-				List<Integer> listRentAreaEntity = new ArrayList<>();
-				listRentAreaEntity.add(rentAreaEntity.getValue());
-				
-				String strRentArea = buildingDTO.getRentArea();
-				if(strRentArea.length() > listRentAreaEntity.size()) {
-					if (strRentArea.contains(",")) {
-						String[] listRentArea = strRentArea.split("\\,");
-						for (String rentArea : listRentArea) {
-							int k = Integer.parseInt(rentArea);
-							rentAreaDTO.setValue(k);
-							rentAreaDTO.setBuildingid(id);
-							rentAreaService.save(rentAreaDTO);
-						}
-					}
-				}else if(strRentArea.length() == listRentAreaEntity.size()) {
-					rentAreaService.update(rentAreaDTO, );
+			RentAreaSearchBuilder fieldSearch = new RentAreaSearchBuilder.Builder().setBuildingid(id).build();
+			List<RentAreaDTO> oldRentAreaDB = rentAreaService.findAll(fieldSearch);	//fieldSearch cần truyền vào buildingId
+			
+			List<Integer> listOldValueRentArea = new ArrayList<>();
+			List<Long > listOldIdRentArea = new ArrayList<>();
+			for(RentAreaDTO oldRentArea : oldRentAreaDB) {
+				listOldValueRentArea.add(oldRentArea.getValue());
+				listOldIdRentArea.add(oldRentArea.getId());
+			}		
+			
+			Long[] arrOldId = new Long[listOldIdRentArea.size()];
+			arrOldId = listOldIdRentArea.toArray(arrOldId);
+	
+			List<Integer> listValueRentAreaDTO = new ArrayList<>();
+			String strRentArea = buildingDTO.getRentArea();
+			if (strRentArea.contains(",")) { 
+				String[] arrRentArea = strRentArea.split("\\,");
+				for (String rentArea : arrRentArea) {
+					int k = Integer.parseInt(rentArea);
+					rentAreaDTO.setValue(k);
+					rentAreaDTO.setBuildingId(id);
+					listValueRentAreaDTO.add(rentAreaDTO.getValue());
 				}
 			}
 			
+			rentAreaService.delete(arrOldId);
 			
+			if (strRentArea.contains(",")) {
+				String[] arrRentArea = strRentArea.split("\\,");
+				for (String rentArea : arrRentArea) {
+					int k = Integer.parseInt(rentArea);
+					rentAreaDTO.setValue(k);
+					rentAreaDTO.setBuildingId(id);
+					rentAreaService.save(rentAreaDTO);
+				}
+			}
 			
+			/*//so sánh số lượng value rentarea của rentarea table và value truyền vào
+			//lưu ms nếu số value cần update k bằng 	
+			if(listValueRentAreaDTO.size() > listOldValueRentArea.size() | listValueRentAreaDTO.size() < listOldValueRentArea.size()) {
+					rentAreaService.delete(arrOldId);
+				
+					if (strRentArea.contains(",")) {
+						String[] arrRentArea = strRentArea.split("\\,");
+						for (String rentArea : arrRentArea) {
+							int k = Integer.parseInt(rentArea);
+							rentAreaDTO.setValue(k);
+							rentAreaDTO.setBuildingId(id);
+							rentAreaService.save(rentAreaDTO);
+						}
+					}
+					
+				
+			}
+			//nếu cùng số lượng value --> thực hiện update
+			//làm sao để chỉ update 1 object
+			else if(listValueRentAreaDTO.size() == listOldValueRentArea.size()) {
+				List<Integer> listNewValue = new ArrayList<>();
+				
+					if (strRentArea.contains(",")) {
+						String[] arrRentArea = strRentArea.split("\\,");
+						for (String rentArea : arrRentArea) {
+							
+							for(RentAreaDTO oldRentArea:oldRentAreaDB) {	
+							int k = Integer.parseInt(rentArea);
+							oldRentArea.setValue(k);
+							listNewValue.add(oldRentArea.getValue());
+							rentAreaService.update(oldRentArea, oldRentArea.getId());
+							
+						}
+					}
+				
+				}
+			}*/
+				
+			
+
 		}
-		//end xử lí update rentarea*/
+		//end xử lí update rentarea
 		
 		return findById(id).get(0);
 		
 		
 	}
 
-
+	/*private RentAreaDTO saveRentArea (BuildingDTO buildingDTO, Long id) {
+		RentAreaDTO rentAreaDTO = new RentAreaDTO();
+		String strRentArea = buildingDTO.getRentArea();
+		if (strRentArea.contains(",")) {
+			String[] arrRentArea = strRentArea.split("\\,");
+			for (String rentArea : arrRentArea) {
+				int k = Integer.parseInt(rentArea);
+				rentAreaDTO.setValue(k);
+				rentAreaDTO.setBuildingid(id);
+			}
+		}
+		return rentAreaDTO;
+	}*/
 }
 
 	

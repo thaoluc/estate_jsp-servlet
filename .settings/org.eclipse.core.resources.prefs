@@ -1,0 +1,6 @@
+eclipse.preferences.version=1
+encoding//src/main/java/com/laptrinhjavaweb/api/BuildingAPI.java=UTF-8
+encoding//src/main/java/com/laptrinhjavaweb/api/StaffAPI.java=UTF-8
+encoding//src/main/java/com/laptrinhjavaweb/repository/impl/SimpleJpaRepository.java=UTF-8
+encoding//src/main/java/com/laptrinhjavaweb/service/impl/BuildingService.java=UTF-8
+encoding//src/main/java/com/laptrinhjavaweb/service/impl/RentAreaService.java=UTF-8
